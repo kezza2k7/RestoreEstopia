@@ -20,7 +20,7 @@ module.exports = {
     
             // Send key to the owner
             const owner = await client.users.fetch(ownerId);
-            await owner.send(`Your server has been assigned a key: ${key}`);
+            await owner.send(`Your ${serverName}(${serverId}) has been assigned a key: ${key}`);
         } catch (error) {
             console.error('Error handling guildCreate event:', error);
         }
