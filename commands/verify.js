@@ -26,6 +26,14 @@ module.exports = {
                 .addRoleOption(option =>
                     option.setName('pingrole')
                         .setDescription('The role to ping when a ticket is created')
+                        .setRequired(false))
+                .addRoleOption(option =>
+                    option.setName('requirements')
+                        .setDescription('The Roles that are required to create a ticket')
+                        .setRequired(false))
+                .addStringOption(option =>
+                    option.setName('instructions')
+                        .setDescription('Instructions to show when a ticket is created')
                         .setRequired(false)))
         .addSubcommand(subcommand =>
             subcommand
@@ -45,12 +53,22 @@ module.exports = {
     async execute(interaction) {
         const channelMention = interaction.options.getChannel('channel');
         const roleMention = interaction.options.getRole('role');
-        let type = 'Plain';
+        const requirements = interaction.options.getRole('requirements');
+
+        let type = {
+            type: 'Plain',
+            reqrole: requirements.id
+        }
+        
         if(interaction.options.getSubcommand() === 'ticket') {
             const catergory = interaction.options.getChannel('catergory');
             const pingrole = interaction.options.getRole('pingrole');
+            const instructions = interaction.options.getString('instructions');
             
-            type = `Ticket-${catergory.id}-${pingrole.id}`;
+            type.type = 'Ticket';
+            type.catergory = catergory.id;
+            type.pingrole = pingrole.id;
+            type.instructions = instructions;
         }
 
         if (!channelMention || !roleMention) {
@@ -87,7 +105,7 @@ module.exports = {
                 );
 
             let embed;
-            if(type.includes('Ticket')) {
+            if(type.type === 'Ticket') {
                 embed = new EmbedBuilder()
                     .setTitle('Verification')
                     .setDescription(`Click the button below to start verify for <@&${roleId}>!\nOnce you press the \`Verify\` button, use the \`Manual Verication\' Button.\nThis will create a ticket for you to verify.`)
@@ -109,7 +127,7 @@ module.exports = {
                 channelId: channelMention.id,
                 roleId: roleId,
                 messageId: message.id,
-                type: type
+                type: JSON.stringify(type)
             });
 
             const SucessEmbed = new EmbedBuilder()

@@ -91,9 +91,30 @@ module.exports = {
                 }
             }
 
-            if(Panel.type.includes('Ticket')){
-                const cagid = await Panel.type.split('-')[1];
-                const roleid = await Panel.type.split('-')[2];
+            const data = await JSON.parse(Panel.type);
+            if(data.reqrole && data.reqrole != '' && data.reqrole != undefined){
+                const reqrole = await guild.roles.cache.get(data.reqrole);
+                if (!reqrole) {
+                    const embed = new EmbedBuilder()
+                        .setColor('#FF0000')
+                        .setTitle('Role Not Found')
+                        .setDescription('The required role for this server is not found.')
+                        .setTimestamp();
+                    return interaction.reply({ embeds: [embed], ephemeral: true });
+                }
+                if(!member.roles.cache.has(reqrole.id)){
+                    const embed = new EmbedBuilder()
+                        .setColor('#FF0000')
+                        .setTitle('Role Not Found')
+                        .setDescription(`You do not have the required role to verify.\nYou need the role <@&${reqrole.id}>`)
+                        .setTimestamp();
+                    return interaction.reply({ embeds: [embed], ephemeral: true });
+                }
+            }
+            if(data.type == 'Ticket'){
+                const cagid = data.catergory
+                const roleid = data.pingrole
+                const instructions = data.instructions
 
                 const category = await guild.channels.cache.get(cagid);
 
@@ -125,7 +146,7 @@ module.exports = {
                 const sendEmbed = new EmbedBuilder()
                     .setColor('#00FF00')
                     .setTitle('Ticket Created')
-                    .setDescription(`This is a Verification Ticket for <@${user.id}> for <@&${role.id}>`)
+                    .setDescription(`This is a Verification Ticket for <@${user.id}> for <@&${role.id}>.\n\n${instructions}`)
                     .setTimestamp();
 
                 const CloseGiveRoleButton = new ButtonBuilder()
