@@ -19,7 +19,6 @@ module.exports = {
     
             if (!command) {
                 console.log(`No command matching ${ButtonID} was found. Searching in ${commandsPath}`);
-                console.log(commandFiles);
                 return interaction.reply('Button not found.');
             }
     

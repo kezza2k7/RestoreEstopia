@@ -70,10 +70,10 @@ client.on('ready', () => {
     // Sync Sequelize models
     (async () => {
         try {
-            await AuthedUsers.sync({ alter: true });
-            await Key.sync({ alter: true });
+            await AuthedUsers.sync();
+            await Key.sync();
             await ApprovedUsers.sync();
-            await Panels.sync({ alter: true });
+            await Panels.sync();
             console.log('Database models synced');
         } catch (error) {
             console.error('Failed to sync database models:', error);

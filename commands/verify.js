@@ -18,15 +18,15 @@ module.exports = {
                     option.setName('role')
                         .setDescription('The role to give when verified')
                         .setRequired(true))
-                .addRoleOption(option =>
-                    option.setName('pingrole')
-                        .setDescription('The role to ping when a ticket is created')
-                        .setRequired(false))
                 .addChannelOption(option =>
                     option.setName('catergory')
                         .setDescription('The catergory to create the ticket in')
                         .addChannelTypes([4])
-                        .setRequired(true)))
+                        .setRequired(true))
+                .addRoleOption(option =>
+                    option.setName('pingrole')
+                        .setDescription('The role to ping when a ticket is created')
+                        .setRequired(false)))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('plain')

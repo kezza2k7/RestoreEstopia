@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { Key, AuthedUsers, ApprovedUsers, Panels } = require('../models');
 const { getValidToken } = require('../utils');
-const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
     name: 'manual',
@@ -128,10 +128,23 @@ module.exports = {
                     .setDescription(`This is a Verification Ticket for <@${user.id}> for <@&${role.id}>`)
                     .setTimestamp();
 
+                const CloseGiveRoleButton = new ButtonBuilder()
+                    .setCustomId('close_give_role')
+                    .setLabel('Close and Give Role')
+                    .setStyle(ButtonStyle.Success);
+    
+                const CloseButton = new ButtonBuilder()
+                    .setCustomId('close')
+                    .setLabel('Close')
+                    .setStyle(ButtonStyle.Danger);
+    
+                const CloseRow = new ActionRowBuilder()
+                    .addComponents(CloseGiveRoleButton, CloseButton);
+
                 if(roleid){
-                    await channel.send({ content: `<@${user.id}>, <@&${roleid}>`, embeds: [sendEmbed] });
+                    await channel.send({ content: `<@${user.id}>, <@&${roleid}>`, embeds: [sendEmbed], components: [CloseRow] });
                 } else {
-                    await channel.send({ content: `<@${user.id}>`, embeds: [sendEmbed] });
+                    await channel.send({ content: `<@${user.id}>`, embeds: [sendEmbed], components: [CloseRow] });
                 }
                 
 
