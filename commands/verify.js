@@ -1,40 +1,41 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { Key } = require('../models');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { Panels } = require('../models');
 
 module.exports = {
-    name: 'verify',
-    description: 'Send a verification button to the specified channel',
-    async execute(message, args) {
-        if (args.length !== 2) {
-            return message.reply('Usage: !verify #channel @role');
-        }
-
-        const channelMention = message.mentions.channels.first();
-        const roleMention = message.mentions.roles.first();
+    data: new SlashCommandBuilder()
+        .setName('verify')
+        .setDescription('Setup a verification Panel')
+        .addChannelOption(option =>
+            option.setName('channel')
+                .setDescription('The channel to send the verification panel')
+                .setRequired(true))
+        .addRoleOption(option =>
+            option.setName('role')
+                .setDescription('The role to give when verified')
+                .setRequired(true))
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    async execute(interaction) {
+        const channelMention = interaction.options.getChannel('channel');
+        const roleMention = interaction.options.getRole('role');
 
         if (!channelMention || !roleMention) {
-            return message.reply('You need to mention a channel and a role.');
+            return interaction.reply({ content: 'You need to mention a channel and a role.', ephemeral: true });
         }
 
-        const serverId = message.guild.id;
+        const serverId = interaction.guild.id;
         const roleId = roleMention.id;
 
         try {
-            await Key.update(
-                { roleId },
-                { where: { serverId } }
-            );
-
             const verifyButton = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
                         .setLabel('Verify')
                         .setStyle(ButtonStyle.Link)
-                        .setURL(`https://discord.com/api/oauth2/authorize?client_id=${message.client.user.id}&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}&response_type=code&scope=identify%20guilds.join`),
+                        .setURL(`https://discord.com/api/oauth2/authorize?client_id=${interaction.client.user.id}&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}&response_type=code&scope=identify%20guilds.join`),
                     new ButtonBuilder()
                         .setLabel('Add Bot')
                         .setStyle(ButtonStyle.Link)
-                        .setURL(`https://discord.com/api/oauth2/authorize?client_id=${message.client.user.id}`)
+                        .setURL(`https://discord.com/api/oauth2/authorize?client_id=${interaction.client.user.id}`)
 
                 );
 
@@ -51,15 +52,26 @@ module.exports = {
                 .setDescription('Click the button below to verify and get the role!\nIf you also use the `Add Bot` button and add it to your user, this means if you leave the server we can contact you!')
                 .setFooter({ text: 'we as in EstopiaRestore'});
 
-            await channelMention.send({
+            const message = await channelMention.send({
                 embeds: [embed],
                 components: [verifyButton, manualButton]
             });
 
-            await message.reply('Verification button sent to the channel.');
+            await Panels.create({
+                guildId: serverId,
+                channelId: channelMention.id,
+                roleId: roleId,
+                messageId: message.id
+            });
+
+            const SucessEmbed = new EmbedBuilder()
+                .setTitle('Verification Panel Created')
+                .setDescription('Verification panel has been created successfully.');
+
+            await interaction.reply({ embeds: [SucessEmbed], ephemeral: true });
         } catch (error) {
             console.error('Error handling verify command:', error);
-            await message.reply('Failed to store the role ID.');
+            await interaction.reply('Failed to store the role ID.');
         }
     }
 };

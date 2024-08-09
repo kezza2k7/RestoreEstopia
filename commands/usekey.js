@@ -1,29 +1,52 @@
 const { Key, ApprovedUsers, AuthedUsers } = require('../models');
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
 require('dotenv').config();
 const { addUserToGuild, getValidToken } = require('../utils');
 
 module.exports = {
     name: 'usekey',
-    description: 'Uses a key to get an invite link to the server',
-    async execute(message, args) {
-        if (args.length !== 1) {
-            return message.reply('Usage: !usekey <key>');
-        }
-
-        const key = args[0];
+    description: 'Uses a key to pull users from another server',
+    data: new SlashCommandBuilder()
+        .setName('usekey')
+        .setDescription('Use a key to pull users from another server')
+        .addStringOption(option => 
+            option.setName('key')
+                .setDescription('The key to use')
+                .setRequired(true))
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    async execute(interaction) {
+        const key = interaction.options.getString('key');
 
         try {
             const keyEntry = await Key.findOne({ where: { key } });
             if (!keyEntry) {
-                return message.reply('Invalid key.');
+                const embed = new EmbedBuilder()
+                    .setColor('#FF0000')
+                    .setTitle('Invalid Key')
+                    .setDescription('The provided key is invalid.')
+                    .setTimestamp();
+                return interaction.reply({ embeds: [embed], ephemeral: true });
             }
-
-            if(keyEntry.serverId == message.guild.id){
-                return message.reply('You cannot use the key on this server.');
+        
+            if (keyEntry.serverId == interaction.guild.id) {
+                const embed = new EmbedBuilder()
+                    .setColor('#FF0000')
+                    .setTitle('Invalid Server')
+                    .setDescription('You cannot use the key on this server.')
+                    .setTimestamp();
+                return interaction.reply({ embeds: [embed], ephemeral: true });
             }
 
             const members = await ApprovedUsers.findAll({ where: { serverId: keyEntry.serverId } });
             const memberIds = members.map(member => member.userId);
+
+            const embed = new EmbedBuilder()
+                .setColor('#00FF00')
+                .setTitle('Processing Members')
+                .setDescription(`Processing ${memberIds.length} members...`)
+                .setTimestamp();
+                
+            await interaction.reply({ embeds: [embed], ephemeral: true });
             
             for (const memberId of memberIds) {
                 console.log(`Processing member: ${memberId}`);
@@ -38,11 +61,16 @@ module.exports = {
 
                 const validToken = await getValidToken(accessToken, refreshToken, memberId, keyEntry.serverId);
 
-                await addUserToGuild(message.guild.id, memberId, validToken);
+                await addUserToGuild(interaction.guild.id, memberId, validToken);
             }
         } catch (error) {
             console.error('Error processing usekey command:', error);
-            await message.reply('An error occurred while processing your request.');
+            const embed = new EmbedBuilder()
+                .setColor('#FF0000')
+                .setTitle('Error')
+                .setDescription('An error occurred while processing your request.')
+                .setTimestamp();
+            await interaction.reply({ embeds: [embed], ephemeral: true });
         }
     }
 };

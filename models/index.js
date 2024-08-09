@@ -59,9 +59,6 @@ const Key = sequelize.define('Key', {
         type: Sequelize.STRING,
         allowNull: false,
     },
-    roleId: {
-        type: Sequelize.STRING,
-    },
 });
 
 const PendingUsers = sequelize.define('PendingUsers', {
@@ -82,10 +79,30 @@ const PendingUsers = sequelize.define('PendingUsers', {
     ],
 });
 
+const Panels = sequelize.define('Panels', {
+    guildId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    channelId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    roleId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    messageId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+});
+
 module.exports = {
     sequelize,
     AuthedUsers,
     Key,
     PendingUsers,
-    ApprovedUsers
+    ApprovedUsers,
+    Panels
 };
