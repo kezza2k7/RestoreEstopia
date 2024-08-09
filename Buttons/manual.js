@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Key, AuthedUsers, ApprovedUsers, PendingUsers, Panels } = require('../models');
+const { Key, AuthedUsers, ApprovedUsers, Panels } = require('../models');
 const { getValidToken } = require('../utils');
 const { EmbedBuilder } = require('discord.js');
 
@@ -100,8 +100,6 @@ module.exports = {
                     .setTimestamp();
                 return interaction.reply({ embeds: [embed], ephemeral: true });
             }
-            
-            await PendingUsers.destroy({ where: { userId: user.id, serverId: guild.id } });
 
             const embed = new EmbedBuilder()
                 .setColor('#00FF00')

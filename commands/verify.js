@@ -44,12 +44,16 @@ module.exports = {
                     new ButtonBuilder()
                         .setCustomId('manual-verify')
                         .setLabel('Manual Verification')
-                        .setStyle(ButtonStyle.Primary)
+                        .setStyle(ButtonStyle.Primary),
+                    new ButtonBuilder()
+                        .setCustomId('how_it_works')
+                        .setLabel('How it Works')
+                        .setStyle(ButtonStyle.Secondary)
                 );
 
             const embed = new EmbedBuilder()
                 .setTitle('Verification')
-                .setDescription('Click the button below to verify and get the role!\nIf you also use the `Add Bot` button and add it to your user, this means if you leave the server we can contact you!')
+                .setDescription(`Click the button below to verify and get <@&${roleId}>!\nOnce you press the \`Verify\` button, use the \`Manual Verication\' Button.`)
                 .setFooter({ text: 'we as in EstopiaRestore'});
 
             const message = await channelMention.send({

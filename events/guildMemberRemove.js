@@ -1,4 +1,4 @@
-const { PendingUsers, ApprovedUsers } = require('../models');
+const { ApprovedUsers } = require('../models');
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js')
 
 module.exports = {
@@ -6,9 +6,6 @@ module.exports = {
     execute: async (member) => {
         try {
             const { user, guild } = member;
-
-            // Remove from PendingUsers immediately
-            await PendingUsers.destroy({ where: { userId: user.id, serverId: guild.id } });
 
             const approvedUser = await ApprovedUsers.findOne({ where: { userId: user.id, serverId: guild.id } });
             if (!approvedUser) return;

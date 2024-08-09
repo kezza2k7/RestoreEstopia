@@ -1,6 +1,6 @@
 const express = require('express');
 const fetch = require('node-fetch');
-const { AuthedUsers, Key, PendingUsers, ApprovedUsers } = require('./models/index');
+const { AuthedUsers, Key, ApprovedUsers } = require('./models/index');
 
 const createRouter = (client) => {
     const router = express.Router();
@@ -58,58 +58,7 @@ const createRouter = (client) => {
                 refreshToken
             });
 
-            // Check if the user is in the `need_authed` table
-            const rows = await PendingUsers.findAll({
-                where: { userId: userData.id }
-            });
-
-            if (rows.length === 0) {
-                return res.status(404).send('You are not pending verification, If you believe this is an error, please contact the server owner. or use the Manual Button');
-            }
-
-            for (const row of rows) {
-                const serverId = row.serverId;
-                const server = await client.guilds.cache.get(serverId);
-                if (!server) {
-                    console.warn(`Server not found: ${serverId}`);
-                    continue;
-                }
-
-                const keyEntry = await Key.findOne({ where: { serverId } });
-                if (!keyEntry) {
-                    console.warn(`Role ID not found for server: ${serverId}`);
-                    continue;
-                }
-
-                
-                let member = await server.members.cache.get(userData.id);
-                if (!member) {
-                    try {
-                        member = await server.members.fetch(userData.id);
-                    } catch (error) {
-                        console.warn(`Member not found in server: ${serverId}`);
-                        continue;
-                    }
-                }
-
-                const roleId = keyEntry.roleId;
-                const role = server.roles.cache.get(roleId);
-                if (!role) {
-                    console.warn(`Role not found in server: ${serverId}`);
-                    continue;
-                }
-
-                try {
-                    await member.roles.add(role);
-                    await ApprovedUsers.create({ userId: userData.id, serverId: serverId });
-                    await PendingUsers.destroy({ where: { userId: userData.id, serverId } });
-                    console.log(`Role added to ${member.user.tag} in server ${serverId}`);
-                } catch (error) {
-                    console.error('Error adding role', error);
-                }
-            }
-
-            res.send('You have been verified!');
+            return res.send('You have been verified, Please go back into the server and press the Manual Verification Button');
         } catch (error) {
             console.error('Error processing verification:', error);
             res.status(500).send('Internal server error');

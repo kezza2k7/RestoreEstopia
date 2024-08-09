@@ -61,24 +61,6 @@ const Key = sequelize.define('Key', {
     },
 });
 
-const PendingUsers = sequelize.define('PendingUsers', {
-    userId: {
-        type: Sequelize.STRING,
-        allowNull: false,
-    },
-    serverId: {
-        type: Sequelize.STRING,
-        allowNull: false,
-    },
-}, {
-    indexes: [
-        {
-            unique: true,
-            fields: ['userId', 'serverId'],
-        },
-    ],
-});
-
 const Panels = sequelize.define('Panels', {
     guildId: {
         type: Sequelize.STRING,
@@ -102,7 +84,6 @@ module.exports = {
     sequelize,
     AuthedUsers,
     Key,
-    PendingUsers,
     ApprovedUsers,
     Panels
 };

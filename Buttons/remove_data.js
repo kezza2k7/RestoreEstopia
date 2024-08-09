@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { AuthedUsers, ApprovedUsers, PendingUsers } = require('../models');
+const { AuthedUsers, ApprovedUsers } = require('../models');
 const { getValidToken } = require('../utils');
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js');
 
@@ -45,14 +45,12 @@ module.exports = {
         }
 
         let ApprovedUser = await ApprovedUsers.findOne({ where: { userId: user.id, serverId: guildId } });
-        let PendingUser = await PendingUsers.findOne({ where: { userId: user.id, serverId: guildId } });
 
-        if (!ApprovedUser && !PendingUser) {
+        if (!ApprovedUser) {
             return await interaction.reply({content: `You have no Data Linked to the Server to Remove`, ephemeral: true});
         }
 
         await ApprovedUsers.destroy({ where: { userId: user.id, serverId: guildId } });
-        await PendingUsers.destroy({ where: { userId: user.id, serverId: guildId } });
 
         const embed = new EmbedBuilder()
             .setTitle('Data Removed')

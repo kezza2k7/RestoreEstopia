@@ -1,10 +1,6 @@
 require('dotenv').config();
-const { Key, AuthedUsers, ApprovedUsers, PendingUsers, Panels } = require('../models');
-const { getValidToken, addUserToGuild } = require('../utils');
-const { ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const manualVerify = require('../Buttons/manual');
 
 module.exports = {
 	name: 'interactionCreate',
