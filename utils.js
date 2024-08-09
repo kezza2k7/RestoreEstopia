@@ -108,6 +108,9 @@ async function testRefreshToken(refreshToken) {
 }
 
 async function getValidToken(accessToken, refreshToken, userId, guildId){
+    if(!accessToken || !refreshToken || !userId || !guildId){
+        return null;
+    }
     const isAccessTokenValid = await testAccessToken(accessToken);
 
     if (!isAccessTokenValid) {

@@ -5,18 +5,53 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('verify')
         .setDescription('Setup a verification Panel')
-        .addChannelOption(option =>
-            option.setName('channel')
-                .setDescription('The channel to send the verification panel')
-                .setRequired(true))
-        .addRoleOption(option =>
-            option.setName('role')
-                .setDescription('The role to give when verified')
-                .setRequired(true))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('ticket')
+                .setDescription('Use this to create a ticket verification panel')
+                .addChannelOption(option =>
+                    option.setName('channel')
+                        .setDescription('The channel to send the verification panel')
+                        .addChannelTypes([0])
+                        .setRequired(true))
+                .addRoleOption(option =>
+                    option.setName('role')
+                        .setDescription('The role to give when verified')
+                        .setRequired(true))
+                .addRoleOption(option =>
+                    option.setName('pingrole')
+                        .setDescription('The role to ping when a ticket is created')
+                        .setRequired(false))
+                .addChannelOption(option =>
+                    option.setName('catergory')
+                        .setDescription('The catergory to create the ticket in')
+                        .addChannelTypes([4])
+                        .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('plain')
+                .setDescription('Use this to create a plain verification panel')
+                .addChannelOption(option =>
+                    option.setName('channel')
+                        .setDescription('The channel to send the verification panel')
+                        .addChannelTypes([0])
+                        .setRequired(true))
+                .addRoleOption(option =>
+                    option.setName('role')
+                        .setDescription('The role to give when verified')
+                        .setRequired(true))
+        )
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
         const channelMention = interaction.options.getChannel('channel');
         const roleMention = interaction.options.getRole('role');
+        let type = 'Plain';
+        if(interaction.options.getSubcommand() === 'ticket') {
+            const catergory = interaction.options.getChannel('catergory');
+            const pingrole = interaction.options.getRole('pingrole');
+            
+            type = `Ticket-${catergory.id}-${pingrole.id}`;
+        }
 
         if (!channelMention || !roleMention) {
             return interaction.reply({ content: 'You need to mention a channel and a role.', ephemeral: true });
@@ -51,10 +86,18 @@ module.exports = {
                         .setStyle(ButtonStyle.Secondary)
                 );
 
-            const embed = new EmbedBuilder()
-                .setTitle('Verification')
-                .setDescription(`Click the button below to verify and get <@&${roleId}>!\nOnce you press the \`Verify\` button, use the \`Manual Verication\' Button.`)
-                .setFooter({ text: 'we as in EstopiaRestore'});
+            let embed;
+            if(type.includes('Ticket')) {
+                embed = new EmbedBuilder()
+                    .setTitle('Verification')
+                    .setDescription(`Click the button below to start verify for <@&${roleId}>!\nOnce you press the \`Verify\` button, use the \`Manual Verication\' Button.\nThis will create a ticket for you to verify.`)
+                    .setFooter({ text: 'we as in EstopiaRestore'});
+            } else {
+                embed = new EmbedBuilder()
+                    .setTitle('Verification')
+                    .setDescription(`Click the button below to verify and get <@&${roleId}>!\nOnce you press the \`Verify\` button, use the \`Manual Verication\' Button.`)
+                    .setFooter({ text: 'we as in EstopiaRestore'});
+            }
 
             const message = await channelMention.send({
                 embeds: [embed],
@@ -65,7 +108,8 @@ module.exports = {
                 guildId: serverId,
                 channelId: channelMention.id,
                 roleId: roleId,
-                messageId: message.id
+                messageId: message.id,
+                type: type
             });
 
             const SucessEmbed = new EmbedBuilder()

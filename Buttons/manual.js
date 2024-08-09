@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { Key, AuthedUsers, ApprovedUsers, Panels } = require('../models');
 const { getValidToken } = require('../utils');
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
     name: 'manual',
@@ -27,7 +27,7 @@ module.exports = {
             const accessToken = AuthedUser.accessToken;
             const refreshToken = AuthedUser.refreshToken;
             
-            const ValidToken = await getValidToken(accessToken, refreshToken);
+            const ValidToken = await getValidToken(accessToken, refreshToken, user.id, guild.id);
             
             if (!ValidToken) {
                 const embed = new EmbedBuilder()
@@ -90,30 +90,85 @@ module.exports = {
                     return interaction.reply({ embeds: [embed], ephemeral: true });
                 }
             }
-            try {
-                await member.roles.add(role);
-            } catch (error) {
-                const embed = new EmbedBuilder()
-                    .setColor('#FF0000')
-                    .setTitle('Error: Permissions')
-                    .setDescription('The Bot needs to be higher on the role hierarchy.')
+
+            if(Panel.type.includes('Ticket')){
+                const cagid = await Panel.type.split('-')[1];
+                const roleid = await Panel.type.split('-')[2];
+
+                const category = await guild.channels.cache.get(cagid);
+
+                if (!category) {
+                    const embed = new EmbedBuilder()
+                        .setColor('#FF0000')
+                        .setTitle('Category Not Found')
+                        .setDescription('The category for this server is not found.')
+                        .setTimestamp();
+                    return interaction.reply({ embeds: [embed], ephemeral: true });
+                }
+
+                const channel = await guild.channels.create({
+                    name: `verification-${user.id}`,
+                    type: 0,
+                    parent: category,
+                    permissionOverwrites: [
+                        {
+                            id: guild.id,
+                            deny: [PermissionFlagsBits.ViewChannel],
+                        },
+                        {
+                            id: user.id,
+                            allow: [PermissionFlagsBits.ViewChannel],
+                        },
+                    ],
+                });
+
+                const sendEmbed = new EmbedBuilder()
+                    .setColor('#00FF00')
+                    .setTitle('Ticket Created')
+                    .setDescription(`This is a Verification Ticket for <@${user.id}> for <@&${role.id}>`)
                     .setTimestamp();
-                return interaction.reply({ embeds: [embed], ephemeral: true });
+
+                if(roleid){
+                    await channel.send({ content: `<@${user.id}>, <@&${roleid}>`, embeds: [sendEmbed] });
+                } else {
+                    await channel.send({ content: `<@${user.id}>`, embeds: [sendEmbed] });
+                }
+                
+
+                const embed = new EmbedBuilder()
+                    .setColor('#00FF00')
+                    .setTitle('Ticket Created')
+                    .setDescription(`Your ticket has been created in <#${channel.id}>`)
+                    .setTimestamp();
+
+                await interaction.reply({ embeds: [embed], ephemeral: true });
+            } else {
+                try {
+                    await member.roles.add(role);
+                } catch (error) {
+                    const embed = new EmbedBuilder()
+                        .setColor('#FF0000')
+                        .setTitle('Error: Permissions')
+                        .setDescription('The Bot needs to be higher on the role hierarchy.')
+                        .setTimestamp();
+                    return interaction.reply({ embeds: [embed], ephemeral: true });
+                }
+    
+                const embed = new EmbedBuilder()
+                    .setColor('#00FF00')
+                    .setTitle('Authorization Successful')
+                    .setDescription(`You have been authorized, and <@&${role.id}> has been given to you.`)
+                    .setTimestamp();
+    
+                await interaction.reply({ embeds: [embed], ephemeral: true });
             }
 
-            const embed = new EmbedBuilder()
-                .setColor('#00FF00')
-                .setTitle('Authorization Successful')
-                .setDescription(`You have been authorized, and <@&${role.id}> has been given to you.`)
-                .setTimestamp();
-
-            await interaction.reply({ embeds: [embed], ephemeral: true });
             if(!ApprovedUser){
                 await ApprovedUsers.create({ userId: user.id, serverId: guild.id });
             }
         } catch (error) {
             console.error('Error fetching AuthedUser:', error);
-            return interaction.reply('An error occurred while fetching your data.');
+            return interaction.reply({ content: 'An error occurred while fetching your data, Try using `Verify` Again', ephemeral: true });
         }
     }
 }

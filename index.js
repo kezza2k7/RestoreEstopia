@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { Client, GatewayIntentBits, Partials, Collection } = require('discord.js');
 const { REST, Routes } = require('discord.js');
-const {sequelize} = require('./models/index');
+const {sequelize, AuthedUsers, Key, ApprovedUsers, Panels} = require('./models/index');
 const express = require('express');
 const { readdirSync } = require('fs');
 const createRouter = require('./server');
@@ -68,7 +68,17 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 
     // Sync Sequelize models
-    sequelize.sync();
+    (async () => {
+        try {
+            await AuthedUsers.sync({ alter: true });
+            await Key.sync({ alter: true });
+            await ApprovedUsers.sync();
+            await Panels.sync({ alter: true });
+            console.log('Database models synced');
+        } catch (error) {
+            console.error('Failed to sync database models:', error);
+        }
+    })();
 });
 
 // Event Handler

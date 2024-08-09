@@ -78,6 +78,10 @@ const Panels = sequelize.define('Panels', {
         type: Sequelize.STRING,
         allowNull: false,
     },
+    type: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
 });
 
 module.exports = {
