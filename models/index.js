@@ -61,6 +61,20 @@ const Key = sequelize.define('Key', {
     },
 });
 
+// Servers is seprate from Key due to if there was a databrech or it broke
+const Servers = sequelize.define('Servers', {
+    serverId: {
+        type: Sequelize.STRING,
+        unique: true,
+        primaryKey: true,
+        allowNull: false,
+    },
+    data: {
+        type: Sequelize.STRING(1000),
+        allowNull: false,
+    },
+});
+
 const Panels = sequelize.define('Panels', {
     guildId: {
         type: Sequelize.STRING,
@@ -89,5 +103,6 @@ module.exports = {
     AuthedUsers,
     Key,
     ApprovedUsers,
-    Panels
+    Panels,
+    Servers
 };

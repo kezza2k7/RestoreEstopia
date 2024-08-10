@@ -6,7 +6,13 @@ module.exports = {
 	name: 'interactionCreate',
 	execute: async(interaction) => {
 
+        if (!interaction.guild) {
+            await interaction.reply({ content: 'Commands can only be used inside Guilds', ephemeral: true });
+            return;
+        }
+
         if(interaction.isButton()){
+            console.log(`Button: ${interaction.customId}`);
             // Load commands dynamically
             const commandsPath = path.resolve(__dirname, '../Buttons');
             const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -30,7 +36,7 @@ module.exports = {
             }
 
         } else if (interaction.isCommand()) {
-            if (!interaction.isChatInputCommand()) return;
+            console.log(`Command: ${interaction.commandName}`);         
 
             const command = interaction.client.commands.get(interaction.commandName);
         
@@ -50,6 +56,7 @@ module.exports = {
                 }
             }
         } else if (interaction.isAutocomplete()) {
+            console.log(`AutoComplete: ${interaction.commandName}`);
             const command = interaction.client.commands.get(interaction.commandName);
     
             if (!command) {

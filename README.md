@@ -12,6 +12,7 @@ This is a similar application to RestoreCord which is used to protect discord se
 ### Added ->
 - Key System (Messages the owner of the server with the key, When the bot joins the server)
 - Verify System (Prompts the user to verify the bot with a Manual Verication button if this fails)
+- SendProve ( Context Menu to send a message to a prove channel set using /setup )
 - Add Bot to User to get send the Leave message that makes it easy for the user to rejoin the server or remove there connection to the server.
 - Slash Commands
 - Permissions Check
