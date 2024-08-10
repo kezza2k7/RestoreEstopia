@@ -98,11 +98,64 @@ const Panels = sequelize.define('Panels', {
     },
 });
 
+const WebUsers = sequelize.define('WebUsers', {
+    userId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    username: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    password: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    webToken: {
+        type: Sequelize.UUID,
+
+        allowNull: true,
+    },
+    webTokenExpire: {
+        type: Sequelize.DATE,
+        allowNull: true,
+    },
+    created_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
+}, {
+    timestamps: false
+});
+
+const UserDiscordLinks = sequelize.define('UserDiscordLinks', {
+    userId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    serverId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    linked_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
+}, {
+    timestamps: false
+});
+
 module.exports = {
     sequelize,
     AuthedUsers,
     Key,
     ApprovedUsers,
     Panels,
-    Servers
+    Servers,
+    UserDiscordLinks,
+    WebUsers
 };

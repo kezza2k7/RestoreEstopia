@@ -107,6 +107,8 @@ app.use(express.json());
 
 const router = createRouter(client);
 app.use('/', router);
+app.use('/api/verifyToken', router);
+app.use('/web/auth', router);
 
 client.login(process.env.DISCORD_TOKEN);
 

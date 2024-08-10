@@ -139,4 +139,32 @@ async function getValidToken(accessToken, refreshToken, userId, guildId){
     }
 }
 
-module.exports = { generateKey, addUserToGuild, testAccessToken, testRefreshToken, getValidToken };
+async function getValidTokenAPI(accessToken, refreshToken, userId){
+    if(!accessToken || !refreshToken || !userId || !guildId){
+        return null;
+    }
+    const isAccessTokenValid = await testAccessToken(accessToken);
+
+    if (!isAccessTokenValid) {
+        const newTokenData = await testRefreshToken(refreshToken);
+
+        if (newTokenData) {
+            user = await AuthedUsers.update({
+                accessToken: newTokenData.access_token
+            }, {
+                where: { userId: userId }
+            });
+            return newTokenData.access_token;
+        } else {
+            await AuthedUsers.destroy({
+                where: { userId: userId }
+            });
+
+            return null;
+        }
+    } else {
+        return accessToken;
+    }
+}
+
+module.exports = { generateKey, addUserToGuild, testAccessToken, testRefreshToken, getValidToken, getValidTokenAPI };
