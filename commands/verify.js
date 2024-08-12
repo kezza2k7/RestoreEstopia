@@ -57,7 +57,10 @@ module.exports = {
 
         let type = {
             type: 'Plain',
-            reqrole: requirements.id
+        }
+        
+        if(requirements) {
+            type.reqrole = requirements.id;
         }
         
         if(interaction.options.getSubcommand() === 'ticket') {

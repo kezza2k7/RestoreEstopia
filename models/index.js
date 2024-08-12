@@ -125,8 +125,8 @@ const WebUsers = sequelize.define('WebUsers', {
         allowNull: true,
     },
     created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
     }
 }, {
     timestamps: false
@@ -142,8 +142,8 @@ const UserDiscordLinks = sequelize.define('UserDiscordLinks', {
         allowNull: false,
     },
     linked_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
     }
 }, {
     timestamps: false

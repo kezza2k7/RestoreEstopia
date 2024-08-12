@@ -13,7 +13,7 @@ module.exports = {
                 .setDescription('You do not have permission to manage messages.')
                 .setTimestamp();
 
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            return await interaction.reply({ embeds: [embed], ephemeral: true });
         }
 
         const description = interaction.message.embeds[0].data.description;
