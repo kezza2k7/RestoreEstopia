@@ -75,12 +75,9 @@ const createRouter = (client) => {
             return res.status(400).send('Missing parameters');
         }
 
-        const passwordHash = bcrypt.hashSync(password, 10);
-
         const user = await WebUsers.findOne({
             where: {
-                username,
-                password: passwordHash
+                username
             }
         });
 
@@ -88,15 +85,24 @@ const createRouter = (client) => {
             return res.status(404).send('User not found');
         }
 
+        const passwordMatch = await bcrypt.compare(password, user.password);
+
+        if (!passwordMatch) {
+            return res.status(401).send('Invalid password');
+        }
+
         const webToken = crypto.randomBytes(16).toString('hex');
 
-        await WebUsers.upsert({
-            userId: user.userId,
+        await WebUsers.update({
             webToken,
             webTokenExpire: Date.now() + 1000 * 60 * 60 * 24
+        }, {
+            where: {
+                userId: user.userId
+            }
         });
 
-        res.cookie('authToken', webToken, { httpOnly: false, secure: true });
+        res.cookie('authToken', webToken, { domain: '.estopia.net', httpOnly: false, secure: true, maxAge: 1000 * 60 * 60 * 24 });
 
         return res.send(webToken);
     });
@@ -131,7 +137,7 @@ const createRouter = (client) => {
             webTokenExpire: Date.now() + 1000 * 60 * 60 * 24
         });
 
-        res.cookie('authToken', webToken, { httpOnly: false, secure: true });
+        res.cookie('authToken', webToken, { domain: '.estopia.net', httpOnly: false, secure: true, maxAge: 1000 * 60 * 60 * 24 });
 
         return res.send(webToken);
     });
@@ -141,7 +147,7 @@ const createRouter = (client) => {
         const { token } = req.body;
 
         if (!token) {
-            return res.status(400).send(false);
+            return res.status(400).send({ valid: false });
         }
 
         const webUser = await WebUsers.findOne({
@@ -151,14 +157,14 @@ const createRouter = (client) => {
         });
 
         if (!webUser) {
-            return res.status(404).send(false);
+            return res.status(404).send({ valid: false });
         }
 
         if (webUser.webTokenExpire < Date.now()) {
-            return res.status(404).send(false);
+            return res.status(404).send({ valid: false });
         }
 
-        return res.send(true);
+        return res.send({ valid: true });
     })
 
     return router;
