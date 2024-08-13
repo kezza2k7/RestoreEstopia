@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 const { AuthedUsers, WebUsers } = require('./models/index');
 const { getValidTokenAPI } = require('./utils');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 const createRouter = (client) => {
     const router = express.Router();
@@ -76,7 +77,7 @@ const createRouter = (client) => {
 
         const passwordHash = bcrypt.hashSync(password, 10);
 
-        const user = await AuthedUsers.findOne({
+        const user = await WebUsers.findOne({
             where: {
                 username,
                 password: passwordHash
@@ -109,7 +110,7 @@ const createRouter = (client) => {
 
         const passwordHash = bcrypt.hashSync(password, 10);
 
-        const user = await AuthedUsers.findOne({
+        const user = await WebUsers.findOne({
             where: {
                 username,
                 password: passwordHash
@@ -122,7 +123,7 @@ const createRouter = (client) => {
 
         const webToken = crypto.randomBytes(16).toString('hex');
 
-        await AuthedUsers.create({
+        await WebUsers.create({
             username,
             password: passwordHash,
             email,

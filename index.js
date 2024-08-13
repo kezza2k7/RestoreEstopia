@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { Client, GatewayIntentBits, Partials, Collection } = require('discord.js');
 const { REST, Routes } = require('discord.js');
-const { sequelize, AuthedUsers, Key, ApprovedUsers, Panels, Servers } = require('./models/index');
+const { sequelize, AuthedUsers, Key, ApprovedUsers, Panels, Servers, WebUsers } = require('./models/index');
 const express = require('express');
 const { readdirSync } = require('fs');
 const createRouter = require('./server');
@@ -76,6 +76,7 @@ client.on('ready', () => {
             await ApprovedUsers.sync();
             await Panels.sync();
             await Servers.sync();
+            await WebUsers.sync();
             console.log('Database models synced');
         } catch (error) {
             console.error('Failed to sync database models:', error);
@@ -105,9 +106,10 @@ client.on('ready', () => {
 app.use(express.json());
 
 const corsOptions = {
-    origin: 'https://api.estopia.net', // Replace with the allowed origin(s)
+    origin: ['https://test.estopia.net', 'https://restore.estopia.net'], // Replace with the allowed origin(s)
     methods: ['GET', 'POST'], // Replace with the allowed HTTP methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Replace with the allowed headers
+    credentials: true // Allow credentials
 };
 
 app.use(cors(corsOptions));

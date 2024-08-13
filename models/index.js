@@ -100,7 +100,9 @@ const Panels = sequelize.define('Panels', {
 
 const WebUsers = sequelize.define('WebUsers', {
     userId: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
         allowNull: false,
     },
     username: {
@@ -117,7 +119,6 @@ const WebUsers = sequelize.define('WebUsers', {
     },
     webToken: {
         type: Sequelize.UUID,
-
         allowNull: true,
     },
     webTokenExpire: {
