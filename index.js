@@ -7,6 +7,7 @@ const { sequelize, AuthedUsers, Key, ApprovedUsers, Panels, Servers } = require(
 const express = require('express');
 const { readdirSync } = require('fs');
 const createRouter = require('./server');
+const cors = require('cors');
 
 const client = new Client({
     intents: [
@@ -103,12 +104,19 @@ client.on('ready', () => {
 
 app.use(express.json());
 
+const corsOptions = {
+    origin: 'https://api.estopia.net', // Replace with the allowed origin(s)
+    methods: ['GET', 'POST'], // Replace with the allowed HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Replace with the allowed headers
+};
+
+app.use(cors(corsOptions));
+
 // Routes
 
 const router = createRouter(client);
 app.use('/', router);
-app.use('/api/verifyToken', router);
-app.use('/web/auth', router);
+app.use('/api', router);
 
 client.login(process.env.DISCORD_TOKEN);
 

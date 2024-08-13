@@ -2,6 +2,7 @@ const express = require('express');
 const fetch = require('node-fetch');
 const { AuthedUsers, WebUsers } = require('./models/index');
 const { getValidTokenAPI } = require('./utils');
+const bcrypt = require('bcrypt');
 
 const createRouter = (client) => {
     const router = express.Router();
@@ -66,73 +67,72 @@ const createRouter = (client) => {
         }
     });
 
-    router.get('/web/auth', async (req, res) => {
-        const code = req.query.code;
-        if (!code) {
-            return res.status(400).send('No code provided');
+    router.post('/api/login', async (req, res) => {
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            return res.status(400).send('Missing parameters');
         }
 
-        const Webuser = await WebUsers.findOne({
+        const passwordHash = bcrypt.hashSync(password, 10);
+
+        const user = await AuthedUsers.findOne({
             where: {
-                webToken: code
+                username,
+                password: passwordHash
             }
         });
 
-        if(!Webuser) {
-            return res.status(404).send('No user found with that token');
+        if (!user) {
+            return res.status(404).send('User not found');
         }
 
-        if(Webuser.webTokenExpires < Date.now()) {
-            return res.status(404).send('Token has expired');
+        const webToken = crypto.randomBytes(16).toString('hex');
+
+        await WebUsers.upsert({
+            userId: user.userId,
+            webToken,
+            webTokenExpire: Date.now() + 1000 * 60 * 60 * 24
+        });
+
+        res.cookie('authToken', webToken, { httpOnly: false, secure: true });
+
+        return res.send(webToken);
+    });
+
+    router.post('/api/register', async (req, res) => {
+        const { username, password, email } = req.body;
+
+        if (!username || !password || !email) {
+            return res.status(400).send('Missing parameters');
         }
 
-        const user = await AuthedUsers.findByPk(Webuser.userId);
+        const passwordHash = bcrypt.hashSync(password, 10);
 
-        let token = await getValidTokenAPI(user.accessToken, user.refreshToken, user.userId);
-
-        // Exchange the authorization code for an access token
-        const params = new URLSearchParams();
-        params.append('client_id', process.env.CLIENT_ID);
-        params.append('client_secret', process.env.CLIENT_SECRET);
-        params.append('grant_type', 'authorization_code');
-        params.append('code', token);
-        params.append('redirect_uri', process.env.REDIRECT_URI);
-
-        const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
-            method: 'POST',
-            body: params,
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+        const user = await AuthedUsers.findOne({
+            where: {
+                username,
+                password: passwordHash
             }
         });
 
-        const tokenData = await tokenResponse.json();
-
-        if (!tokenResponse.ok) {
-            return res.status(tokenResponse.status).send(tokenData);
+        if (user) {
+            return res.status(409).send('User already exists');
         }
 
-        const accessToken = tokenData.access_token;
+        const webToken = crypto.randomBytes(16).toString('hex');
 
-        // Use the access token to get the user's identity
-        const userResponse = await fetch('https://discord.com/api/users/@me', {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
+        await AuthedUsers.create({
+            username,
+            password: passwordHash,
+            email,
+            webToken,
+            webTokenExpire: Date.now() + 1000 * 60 * 60 * 24
         });
 
-        const userData = await userResponse.json();
+        res.cookie('authToken', webToken, { httpOnly: false, secure: true });
 
-        if (!userResponse.ok) {
-            return res.status(userResponse.status).send(userData);
-        }
-
-        try {
-            res.send(userData);
-        } catch (error) {
-            console.error('Error processing verification:', error);
-            res.status(500).send('Internal server error');
-        }
+        return res.send(webToken);
     });
 
 
@@ -154,12 +154,6 @@ const createRouter = (client) => {
         }
 
         if (webUser.webTokenExpire < Date.now()) {
-            return res.status(404).send(false);
-        }
-
-        const user = await AuthedUsers.findByPk(webUser.userId);
-
-        if (!user) {
             return res.status(404).send(false);
         }
 
