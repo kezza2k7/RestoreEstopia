@@ -5,12 +5,6 @@ const path = require('path');
 module.exports = {
 	name: 'interactionCreate',
 	execute: async(interaction) => {
-
-        if (!interaction.guild) {
-            await interaction.reply({ content: 'Commands can only be used inside Guilds', ephemeral: true });
-            return;
-        }
-
         if(interaction.isButton()){
             console.log(`Button: ${interaction.customId}`);
             // Load commands dynamically
@@ -36,6 +30,11 @@ module.exports = {
             }
 
         } else if (interaction.isCommand()) {
+		if (!interaction.guild) {
+            		await interaction.reply({ content: 'Commands can only be used inside Guilds', ephemeral: true });
+            		return;
+        	}
+		
             console.log(`Command: ${interaction.commandName}`);         
 
             const command = interaction.client.commands.get(interaction.commandName);
