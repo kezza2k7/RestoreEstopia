@@ -19,6 +19,7 @@ This is a similar application to RestoreCord which is used to protect discord se
 - SendProve ( Context Menu to send a message to a prove channel set using /setup )
 - Add Bot to User to get send the Leave message that makes it easy for the user to rejoin the server or remove there connection to the server.
 - Slash Commands
+- Docker Support
 - Permissions Check
 
 ## Installation

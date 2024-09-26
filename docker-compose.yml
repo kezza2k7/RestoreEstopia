@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  discord-bot:
+    build: .
+    environment:
+      - DISCORD_TOKEN=
+      - CLIENT_ID=
+      - CLIENT_SECRET=
+      - REDIRECT_URI=

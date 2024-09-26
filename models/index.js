@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: './database.sqlite',
+    storage: './database/database.sqlite',
     logging: false,
 });
 
@@ -70,7 +70,7 @@ const Servers = sequelize.define('Servers', {
         allowNull: false,
     },
     data: {
-        type: Sequelize.STRING(1000),
+        type: Sequelize.JSON,
         allowNull: false,
     },
 });

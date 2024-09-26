@@ -1,7 +1,6 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const { AuthedUsers, WebUsers } = require('./models/index');
-const { getValidTokenAPI } = require('./utils');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 

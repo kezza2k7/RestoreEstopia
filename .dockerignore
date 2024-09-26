@@ -1,0 +1,21 @@
+# Ignore node_modules to avoid copying them into the image
+node_modules
+npm-debug.log
+
+# Ignore local environment files
+.env
+
+# Ignore the Dockerfile and docker-compose files
+Dockerfile
+docker-compose.yml
+
+# Ignore Git repository files
+.git
+.gitignore
+
+# Optionally ignore any build files or IDE settings
+.vscode
+*.log
+*.md
+build/
+coverage/

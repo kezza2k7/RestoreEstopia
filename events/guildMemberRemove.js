@@ -34,7 +34,10 @@ If you want to remove your data immediately and prevent automatic re-adding, cli
                 .setTimestamp()
                 
             try {
-                user.send({ embeds: [embed], components: [row] }).catch(error => {});
+                user.send({ embeds: [embed], components: [row] })
+                    .catch(error => {
+                        
+                    });
             } catch (error) {
                 console.error('Error sending leave button:', error);
             }

@@ -5,6 +5,7 @@ const path = require('path');
 module.exports = {
 	name: 'interactionCreate',
 	execute: async(interaction) => {
+
         if(interaction.isButton()){
             console.log(`Button: ${interaction.customId}`);
             // Load commands dynamically
@@ -26,15 +27,14 @@ module.exports = {
                 await command.execute(interaction);
             } catch (error) {
                 console.error('Error executing button:', error);
-                await interaction.reply('An error occurred while executing the Button.');
+                try {
+                    await interaction.reply('An error occurred while executing the Button.');
+                }   catch (error) {
+                    console.error('Error sending error message:', error);
+                }
             }
 
         } else if (interaction.isCommand()) {
-		if (!interaction.guild) {
-            		await interaction.reply({ content: 'Commands can only be used inside Guilds', ephemeral: true });
-            		return;
-        	}
-		
             console.log(`Command: ${interaction.commandName}`);         
 
             const command = interaction.client.commands.get(interaction.commandName);
