@@ -13,5 +13,7 @@ RUN npm install --production
 # Copy the rest of the application files
 COPY . .
 
+EXPOSE 2999
+
 # Command to start the bot using node
 CMD ["node", "index.js"]

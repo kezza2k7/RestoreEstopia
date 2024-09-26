@@ -8,3 +8,5 @@ services:
       - CLIENT_ID=
       - CLIENT_SECRET=
       - REDIRECT_URI=
+    ports:
+      - "2999:2999"
