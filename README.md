@@ -1,18 +1,12 @@
 # RestoreEstopia
 
 ## Description
-This is a similar application to RestoreCord which is used to protect discord servcers from raiders, nukes etc. This is a diffrent version of that bot that has some extra features and is open source.
+This is a similar application to RestoreCord which is used to protect discord servcers from raiders, nukes etc.This is a diffrent version of that bot that has some extra features and is open source.
+This will also no longer be updated as I am replacing this with [Estopia Chat](https://chat.estopia.net).
+If there are any issues ( reported in the issues tab ) I will fix them but no new features will be added.
+There is a blog located at [jay.estopia.net](https://jay.estopia.net/blog/restore2) which is related to this project.
 
 ## Features
-### Ideas that could be added:
-- Web UI (Login with discord)
-- Resetting Keys
-- Pulling Members back to the same server (This may not happen due to if people leave your server they may not want to come back)
-
-### In Progress ->
-- REST System ( For using a WebUI )
-
-### Added ->
 - Key System (Messages the owner of the server with the key, When the bot joins the server)
 - Ticket System ( When a user logs in and wants to be verified it creates a ticket with buttons to approve and decline )
 - Verify System (Prompts the user to verify the bot with a Manual Verication button if this fails)
@@ -26,7 +20,8 @@ This is a similar application to RestoreCord which is used to protect discord se
 1. Clone the repository: `git clone https://github.com/kezza2k7/RestoreEstopia`
 2. Navigate to the project directory: `cd RestoreEstopia`
 3. Use `npm install` to install the required packages
-4. Start the bot with `node index.js`
+4. Forward the port 2999 to the domain located in the REDIRECT_URI in the .env file
+5. Start the bot with `node index.js`
 
 ## Usage
 1. Setup the .env file with the following:
