@@ -13,7 +13,7 @@ There is a blog located at [jay.estopia.net](https://jay.estopia.net/blog/restor
 - SendProve ( Context Menu to send a message to a prove channel set using /setup )
 - Add Bot to User to get send the Leave message that makes it easy for the user to rejoin the server or remove there connection to the server.
 - Slash Commands
-- Docker Support
+- Docker Support ( Automatically builds the docker image )
 - Permissions Check
 
 ## Installation
