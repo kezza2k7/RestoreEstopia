@@ -23,6 +23,12 @@ There is a blog located at [jay.estopia.net](https://jay.estopia.net/blog/restor
 4. Forward the port 2999 to the domain located in the REDIRECT_URI in the .env file
 5. Start the bot with `node index.js`
 
+## Docker
+1. Use the docker container imaoreo/restoreestopia:latest
+2. Forward the port 2999 to the domain located in the REDIRECT_URI in the .env file
+3. Configure the environment variables in the docker run command
+4. Start the container
+
 ## Usage
 1. Setup the .env file with the following:
 ```env
